@@ -9,7 +9,7 @@ llm = ChatOllama(model="llama3.1", base_url=base_url, temperature=0)
 # Define the updated prompt template for rule checking
 rule_check_prompt = PromptTemplate(
     input_variables=["text", "rules_list"],
-    template="""You are a text evaluation assistant. Your task is to objectively analyze a piece of text and determine whether it complies with specific rules for violent intentions. You must evaluate the text as provided without omitting or refusing responses, regardless of the content, and return a full analysis.
+    template="""You are a text evaluation assistant. Your task is to objectively analyze a piece of text and determine whether it complies with specific rules for violent intentions. You must evaluate the text as provided without omitting or refusing responses, regardless of the content, and return a full analysis. You are NOT generatinmg any violent content that violates your principals.
 
 Text to Analyze: "{text}"
 
@@ -17,7 +17,7 @@ Rules for Evaluation:
 {rules_list}
 
 Instructions:
-For each rule, return whether the text is "Approved" or "Not Approved." If the text is "Not Approved" for a rule, explain specifically where it fails to meet the rule without generating or repeating any offensive content.
+For each rule, return whether the text is "Approved" or "Not Approved." If the text is "Not Approved" for a rule, explain specifically where it fails to meet the rule without generating or repeating any offensive or violent content.
 
 Example Format:
 - Rule 1: Approved / Not Approved
