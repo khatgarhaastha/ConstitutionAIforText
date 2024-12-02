@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -14,6 +14,8 @@
     button { width: 100%; padding: 10px; font-size: 16px; color: white; background-color: #007bff; border: none; border-radius: 4px; cursor: pointer; }
     button:hover { background-color: #0056b3; }
     .result { margin-top: 15px; font-weight: bold; text-align: center; }
+    .flagged { color: red; }     /* Red color for Flagged */
+    .not-flagged { color: green; } /* Green color for Not Flagged */
   </style>
 </head>
 <body>
@@ -37,7 +39,9 @@
       const description = document.getElementById('description').value;
       
       // Show a loading message
-      document.getElementById('result').textContent = 'Checking...';
+      const resultDiv = document.getElementById('result');
+      resultDiv.textContent = 'Checking...';
+      resultDiv.className = 'result';  // Reset any previous result classes
 
       // Send request to Flask API
       const response = await fetch('/classify', {
@@ -47,7 +51,93 @@
       });
 
       const data = await response.json();
-      document.getElementById('result').textContent = data.result;
+      
+      // Display result with appropriate color
+      if (data.result === "Flagged") {
+        resultDiv.textContent = "Flagged";
+        resultDiv.classList.add('flagged');
+      } else if (data.result === "Not Flagged") {
+        resultDiv.textContent = "Not Flagged";
+        resultDiv.classList.add('not-flagged');
+      } else {
+        resultDiv.textContent = data.result;  // Display any error message
+        resultDiv.className = 'result';
+      }
+    }
+  </script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Constitution Checker</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; height: 100vh; background-color: #f9f9f9; }
+    .container { width: 400px; padding: 20px; border: 1px solid #ccc; border-radius: 8px; background-color: #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    h2 { text-align: center; margin-bottom: 20px; }
+    .input-group { margin-bottom: 15px; }
+    label { font-weight: bold; display: block; margin-bottom: 5px; }
+    textarea, input[type="text"] { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+    button { width: 100%; padding: 10px; font-size: 16px; color: white; background-color: #007bff; border: none; border-radius: 4px; cursor: pointer; }
+    button:hover { background-color: #0056b3; }
+    .result { margin-top: 15px; text-align: center; }
+    .result strong { font-size: 18px; display: block; margin-bottom: 10px; }
+    .result span { display: block; margin-top: 5px; }
+    .flagged { color: red; }     /* Red color for Flagged */
+    .not-flagged { color: green; } /* Green color for Not Flagged */
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Constitution Checker</h2>
+    <div class="input-group">
+      <label for="rules">Rules</label>
+      <textarea id="rules" rows="3" placeholder="Enter rules for classification..."></textarea>
+    </div>
+    <div class="input-group">
+      <label for="description">Description</label>
+      <textarea id="description" rows="3" placeholder="Enter description to check..."></textarea>
+    </div>
+    <button onclick="checkDescription()">Check</button>
+    <div id="result" class="result"></div>
+  </div>
+
+  <script>
+    async function checkDescription() {
+      const rules = document.getElementById('rules').value.trim();
+      const description = document.getElementById('description').value.trim();
+
+      const resultDiv = document.getElementById('result');
+
+      // Clear and show loading message
+      resultDiv.innerHTML = "<strong>Checking...</strong>";
+      resultDiv.className = 'result';
+
+      try {
+        // Send request to Flask API
+        const response = await fetch('/classify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rules: rules, input_text: description })
+        });
+
+        const data = await response.json();
+
+        // Display result and explanation
+        if (data.result === "Flagged") {
+          resultDiv.innerHTML = `<strong class="flagged">Flagged</strong><span>${data.explanation}</span>`;
+        } else if (data.result === "Not Flagged") {
+          resultDiv.innerHTML = `<strong class="not-flagged">Not Flagged</strong><span>${data.explanation}</span>`;
+        } else {
+          resultDiv.innerHTML = `<strong>Error:</strong> <span>${data.result}</span>`;
+        }
+      } catch (error) {
+        // Handle errors
+        resultDiv.innerHTML = `<strong>Error:</strong> <span>Unable to connect to the server.</span>`;
+      }
     }
   </script>
 </body>
